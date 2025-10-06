@@ -2,27 +2,6 @@
 
 Sistema de gerenciamento de armazém baseado em grafos, desenvolvido com Django, Neo4j e algoritmos de otimização de rotas.
 
-## 📚 Documentação
-
-Este projeto possui guias completos para desenvolvimento:
-
-### 🎯 Guias Principais
-
-1. **[WMS_API_SETUP_GUIDE.md](./WMS_API_SETUP_GUIDE.md)**
-   - Setup completo do ambiente
-   - Configuração de Firebase, Django e Neo4j
-   - Estrutura base do projeto
-   - Primeiros endpoints e autenticação
-   - **Comece por aqui!**
-
-2. **[WMS_API_NEXT_STEPS.md](./WMS_API_NEXT_STEPS.md)**
-   - Algoritmos de grafo com NetworkX
-   - Sistema de Orders/Pedidos
-   - Otimização de rotas de picking
-   - Integração com Next.js
-   - Scripts de seed e testes
-   - Deploy e melhorias futuras
-
 ---
 
 ## 🏗️ Arquitetura do Sistema
