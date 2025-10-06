@@ -1,0 +1,32 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Django
+*.log
+db.sqlite3
+media/
+staticfiles/
+
+# Environment
+.env
+firebase-service-account.json
+
+# Neo4j
+neo4j_data/
+neo4j_logs/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
