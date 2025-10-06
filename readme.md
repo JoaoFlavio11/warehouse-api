@@ -8,23 +8,23 @@ Sistema de gerenciamento de armazém baseado em grafos, desenvolvido com Django,
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                   Frontend (Next.js)                     │
-│                    + Firebase Auth                       │
+│                   Frontend (Next.js)                    │
+│                    + Firebase Auth                      │
 └───────────────────────┬─────────────────────────────────┘
                         │ HTTP + Bearer Token
                         ▼
 ┌─────────────────────────────────────────────────────────┐
-│              Django REST API (Python)                    │
-│  ┌───────────────────────────────────────────────────┐ │
-│  │  Firebase Auth Middleware                         │ │
-│  └───────────────────────────────────────────────────┘ │
-│  ┌───────────┐  ┌──────────┐  ┌─────────┐  ┌───────┐ │
-│  │ Warehouse │  │Inventory │  │ Routing │  │Orders │ │
-│  │   Module  │  │  Module  │  │ Module  │  │Module │ │
-│  └───────────┘  └──────────┘  └─────────┘  └───────┘ │
+│              Django REST API (Python)                   │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │  Firebase Auth Middleware                         │  │
+│  └───────────────────────────────────────────────────┘  │
+│  ┌───────────┐  ┌──────────┐  ┌─────────┐  ┌───────┐    │
+│  │ Warehouse │  │Inventory │  │ Routing │  │Orders │    │
+│  │   Module  │  │  Module  │  │ Module  │  │Module │    │
+│  └───────────┘  └──────────┘  └─────────┘  └───────┘    │
 │         │              │            │            │      │
 │         └──────────────┴────────────┴────────────┘      │
-│                        │                                 │
+│                        │                                │
 │              ┌─────────▼──────────┐                     │
 │              │   Neomodel OGM     │                     │
 │              └─────────┬──────────┘                     │
@@ -32,22 +32,22 @@ Sistema de gerenciamento de armazém baseado em grafos, desenvolvido com Django,
                          │ Bolt Protocol
                          ▼
            ┌─────────────────────────────┐
-           │      Neo4j Graph Database    │
-           │                              │
-           │  Nodes:                      │
-           │  • Warehouse                 │
-           │  • Zone                      │
-           │  • Aisle                     │
-           │  • Shelf                     │
-           │  • Bin                       │
-           │  • Product                   │
-           │  • Order                     │
-           │                              │
-           │  Relationships:              │
-           │  • CONTAINS                  │
-           │  • STORED_IN                 │
-           │  • LOCATED_AT                │
-           │  • HAS_ITEM                  │
+           │      Neo4j Graph Database   │
+           │                             │
+           │  Nodes:                     │
+           │  • Warehouse                │
+           │  • Zone                     │
+           │  • Aisle                    │
+           │  • Shelf                    │
+           │  • Bin                      │
+           │  • Product                  │
+           │  • Order                    │
+           │                             │
+           │  Relationships:             │
+           │  • CONTAINS                 │
+           │  • STORED_IN                │
+           │  • LOCATED_AT               │
+           │  • HAS_ITEM                 │
            └─────────────────────────────┘
 ```
 
