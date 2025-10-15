@@ -56,21 +56,21 @@ class Shelf(StructuredNode):
   bins = RelationshipFrom('Bin', 'CONTAINS')
   
 class Bin(StructuredNode):
-    """(bin/box) para armazenar produtos"""
-    uid = UniqueIdProperty()
-    code = StringProperty(required=True, unique_index=True)  # Ex: A-01-03-B (Corredor-Prateleira-Nível-Posição)
-    capacity = FloatProperty(default=100.0)  # Capacidade em unidades
-    occupied = FloatProperty(default=0.0)
+  """(bin/box) para armazenar produtos"""
+  uid = UniqueIdProperty()
+  code = StringProperty(required=True, unique_index=True)  # Ex: A-01-03-B (Corredor-Prateleira-Nível-Posição)
+  capacity = FloatProperty(default=100.0)  # Capacidade em unidades
+  occupied = FloatProperty(default=0.0)
     
-    shelf = RelationshipFrom('Shelf', 'CONTAINS')
-    products = RelationshipFrom('Product', 'STORED_IN')
+  shelf = RelationshipFrom('Shelf', 'CONTAINS')
+  products = RelationshipFrom('Product', 'STORED_IN')
 
 class Product(StructuredNode):
-    """Produto armazenado"""
-    uid = UniqueIdProperty()
-    sku = StringProperty(required=True, unique_index=True)
-    name = StringProperty(required=True)
-    quantity = IntegerProperty(default=0)
-    unit = StringProperty(default='UN')  # UN, KG, L, etc
+  """Produto armazenado"""
+  uid = UniqueIdProperty()
+  sku = StringProperty(required=True, unique_index=True)
+  name = StringProperty(required=True)
+  quantity = IntegerProperty(default=0)
+  unit = StringProperty(default='UN')  # UN, KG, L, etc
     
-    location = RelationshipTo('Bin', 'STORED_IN')
+  location = RelationshipTo('Bin', 'STORED_IN')
