@@ -3,8 +3,8 @@ from rest_framework import serializers
 class WarehouseSerializer(serializers.Serializer):
   uid = serializers.CharField(read_only=True)
   name = serializers.CharField(max_length=200)
-  address = serializres.CharField(required=False, allow_blank=True)
-  total_capacity = serializersFloatField(default=0.0)
+  address = serializers.CharField(required=False, allow_blank=True)
+  total_capacity = serializers.FloatField(default=0.0)
   created_at = serializers.DateTimeField(read_only=True)
 
 class ZoneSerializer(serializers.Serializer):
