@@ -1,0 +1,12 @@
+# Dependências do Node
+node_modules
+
+# Arquivos de Build/Distribuição
+build
+dist
+out
+
+# Outros arquivos comuns
+.env
+package-lock.json
+yarn.lock
