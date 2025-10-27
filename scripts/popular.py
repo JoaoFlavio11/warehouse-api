@@ -82,5 +82,5 @@ def seed_data():
 
     print("🎉 Seed completo!")
 
-    if __name__ == "__main__":
-        seed_data()
+
+seed_data()

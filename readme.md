@@ -50,32 +50,37 @@ Sistema de gerenciamento de armazém baseado em grafos, desenvolvido com Django,
            │  • HAS_ITEM                 │
            └─────────────────────────────┘
 ```
-
+![Diagrama de Arquitetura](./lib/images/graph.png)
 ---
 
 ## 🎯 Funcionalidades Principais
 
 ### ✅ Gerenciamento de Warehouse
+
 - Criar e gerenciar múltiplos armazéns
 - Organização hierárquica: Warehouse → Zone → Aisle → Shelf → Bin
 - Controle de capacidade e ocupação
 
 ### ✅ Inventário
+
 - Registro de produtos com SKU único
 - Rastreamento de localização por bin
 - Controle de quantidade disponível
 
 ### ✅ Otimização de Rotas
+
 - Algoritmo TSP (Traveling Salesman Problem) para picking
 - Caminho mais curto entre bins (Dijkstra)
 - Grafo ponderado baseado na estrutura física do warehouse
 
 ### ✅ Gestão de Pedidos
+
 - Criação de pedidos com múltiplos items
 - Sugestão automática de rota ótima de separação
 - Rastreamento de status (pending, picking, completed)
 
 ### ✅ Segurança
+
 - Autenticação via Firebase tokens
 - Middleware de validação em todas as rotas
 - CORS configurado para frontend
@@ -84,16 +89,16 @@ Sistema de gerenciamento de armazém baseado em grafos, desenvolvido com Django,
 
 ## 🛠️ Stack Tecnológica
 
-| Componente | Tecnologia | Versão |
-|------------|------------|--------|
-| **Backend Framework** | Django | 5.0+ |
-| **API** | Django REST Framework | 3.14+ |
-| **Banco de Grafos** | Neo4j | 5.15+ |
-| **OGM** | Neomodel | 5.2+ |
-| **Algoritmos** | NetworkX | 3.2+ |
-| **Autenticação** | Firebase Admin SDK | 6.3+ |
-| **Linguagem** | Python | 3.11+ |
-| **Containerização** | Docker | - |
+| Componente            | Tecnologia            | Versão |
+| --------------------- | --------------------- | ------ |
+| **Backend Framework** | Django                | 5.0+   |
+| **API**               | Django REST Framework | 3.14+  |
+| **Banco de Grafos**   | Neo4j                 | 5.15+  |
+| **OGM**               | Neomodel              | 5.2+   |
+| **Algoritmos**        | NetworkX              | 3.2+   |
+| **Autenticação**      | Firebase Admin SDK    | 6.3+   |
+| **Linguagem**         | Python                | 3.11+  |
+| **Containerização**   | Docker                | -      |
 
 ---
 
@@ -168,6 +173,7 @@ python manage.py runserver
 ```
 
 Acesse:
+
 - API: http://localhost:8000/api/
 - Neo4j Browser: http://localhost:7474
 
@@ -176,6 +182,7 @@ Acesse:
 ## 📖 Endpoints Principais
 
 ### Warehouse
+
 ```http
 GET    /api/warehouses/           # Listar warehouses
 POST   /api/warehouses/           # Criar warehouse
@@ -183,24 +190,28 @@ GET    /api/warehouses/{uid}/     # Detalhes
 ```
 
 ### Products
+
 ```http
 GET    /api/products/             # Listar produtos
 POST   /api/products/             # Criar produto
 ```
 
 ### Routing
+
 ```http
 POST   /api/routing/picking-route/    # Rota ótima de picking
 POST   /api/routing/shortest-path/    # Caminho mais curto
 ```
 
 ### Orders
+
 ```http
 GET    /api/orders/               # Listar pedidos
 POST   /api/orders/create/        # Criar pedido + rota
 ```
 
 ### Health
+
 ```http
 GET    /api/health/               # Status da API
 ```
@@ -217,8 +228,9 @@ curl -X GET http://localhost:8000/api/warehouses/ \
 ```
 
 No Next.js:
+
 ```typescript
-import { getAuth } from 'firebase/auth';
+import { getAuth } from "firebase/auth";
 
 const auth = getAuth();
 const user = auth.currentUser;
@@ -304,17 +316,20 @@ Order -[HAS_ITEM]-> OrderItem
 ## 🎓 Conceitos de Algoritmos
 
 ### TSP (Traveling Salesman Problem)
+
 - **Objetivo**: Encontrar a rota mais curta visitando todos os bins
 - **Algoritmo**: Greedy approximation (sempre vai ao mais próximo)
 - **Uso**: Otimização de picking de pedidos
 
-### Dijkstra / A*
+### Dijkstra / A\*
+
 - **Objetivo**: Caminho mais curto entre dois pontos
 - **Uso**: Navegação individual entre bins
 
 ### Grafo Ponderado
+
 - **Pesos**: Calculados pela distância física entre bins
-- **Lógica**: 
+- **Lógica**:
   - Mesma prateleira = peso 0.5
   - Mesmo corredor = peso 2.0
   - Corredores diferentes = peso 10.0
@@ -368,6 +383,7 @@ curl -X POST http://localhost:8000/api/orders/create/ \
 ```
 
 **Resposta:**
+
 ```json
 {
   "success": true,
@@ -391,6 +407,7 @@ curl -X POST http://localhost:8000/api/orders/create/ \
 ## 🐛 Troubleshooting
 
 ### Neo4j não conecta
+
 ```bash
 # Verificar se está rodando
 docker ps | grep neo4j
@@ -403,11 +420,13 @@ docker-compose restart neo4j
 ```
 
 ### Erro de autenticação Firebase
+
 - Verificar se `firebase-service-account.json` está correto
 - Confirmar path no `.env`
 - Testar token no https://jwt.io
 
 ### CORS error
+
 - Adicionar origin no `CORS_ALLOWED_ORIGINS`
 - Verificar se `corsheaders` está em `INSTALLED_APPS`
 
