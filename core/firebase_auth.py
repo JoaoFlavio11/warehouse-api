@@ -1,30 +1,26 @@
-import  firebase_admin
-from firebase_admin import credentials, auth
-from django.conf import settings
-import os
+# core/firebase_auth.py
 
-#inicializar o firebase auth
-def initialize_firebase():
-    if not firebase_admin._apps:
-      cred_path = settings.FIREBASE_CREDENTIALS_PATH
-        if os.path.exists(cred_path):
-            cred = credentials.Certificate(cred_path)
-            firebase_admin.initialize_app(cred)
-        else:
-            raise FileNotFoundError(f"Firebase credentials not found at {cred_path}")
+from functools import wraps
+from django.http import JsonResponse
+from firebase_admin import auth
 
-initialize_firebase()
+def firebase_auth_required(view_func ):
+    @wraps(view_func)
+    # Adicione 'self' como o primeiro argumento
+    def wrapper(self, request, *args, **kwargs):
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
 
-def verify_firebase_token(token):
-  """
-  Verifica token do Firebase e retorna dados do usuário
-  """
-  try:
-    decoded_token = auth.verify_id_token(token)
-    return {
-      'uid': decoded_token['uid'],
-      'email': decoded_token.get('email'),
-      'email_verified': decoded_token.get('email_verified', False),
-    }
-  except Exception as e:
-    return None
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return JsonResponse({'error': 'Authorization header missing or invalid'}, status=401)
+
+        try:
+            token = auth_header.split('Bearer ')[1]
+            decoded_token = auth.verify_id_token(token)
+            # Anexar o usuário ao request para uso posterior na view
+            request.user_id = decoded_token['uid']
+        except Exception as e:
+            return JsonResponse({'error': f'Invalid token: {str(e)}'}, status=401)
+
+        # Passe 'self' e 'request' para a função original da view
+        return view_func(self, request, *args, **kwargs)
+    return wrapper

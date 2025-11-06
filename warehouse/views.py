@@ -2,11 +2,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from core.permissions import IsFirebaseAuthenticated
+from core.firebase_auth import firebase_auth_required
 from .models import Warehouse, Zone, Product, Bin
 from .serializers import WarehouseSerializer, ZoneSerializer, ProductSerializer, BinSerializer
 
 class WarehouseListCreateView(APIView):
-  permission_classes = [IsFirebaseAuthenticated]
+  # permission_classes = [IsFirebaseAuthenticated] # Removido para usar o decorador
+  @firebase_auth_required
+  def dispatch(self, request, *args, **kwargs):
+    return super().dispatch(request, *args, **kwargs)
   
   def get(self, request):
     """ listar os galpões/warehouses"""
@@ -18,7 +22,7 @@ class WarehouseListCreateView(APIView):
     """ criar um novo galpão/warehouse"""
     serializer = WarehouseSerializer(data=request.data)
     if serializer.is_valid():
-      warehouse = Warehouse(**serializer.validated_data).save()
+      warehouse = Warehouse(**serializer.validated_data, created_by=request.user_uid).save()
       return Response(
         WarehouseSerializer(warehouse).data,
         status=status.HTTP_201_CREATED
@@ -26,7 +30,10 @@ class WarehouseListCreateView(APIView):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class WarehouseDetailView(APIView):
-  permission_classes = [IsFirebaseAuthenticated]
+  # permission_classes = [IsFirebaseAuthenticated] # Removido para usar o decorador
+  @firebase_auth_required
+  def dispatch(self, request, *args, **kwargs):
+    return super().dispatch(request, *args, **kwargs)
   
   def get(self, request, uid):
     """ Detalhes de um galpão/warehouse específico """
@@ -40,7 +47,10 @@ class WarehouseDetailView(APIView):
       )
       
 class ProductListCreateView(APIView):
-  permission_classes = [IsFirebaseAuthenticated]
+  # permission_classes = [IsFirebaseAuthenticated] # Removido para usar o decorador
+  @firebase_auth_required
+  def dispatch(self, request, *args, **kwargs):
+    return super().dispatch(request, *args, **kwargs)
   def get(self, request):
     """ listar os produtos """
     products = Product.nodes.all()
