@@ -16,6 +16,7 @@ class Warehouse(StructuredNode):
   name = StringProperty(required=True, unique_index=True)
   addres = StringProperty()
   total_capacity = FloatProperty(default=0.0)
+  created_by = StringProperty(required=True)
   created_at = DateTimeProperty(default=datetime.utcnow)
   
   #relacionamentos:

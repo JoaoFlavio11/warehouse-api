@@ -5,6 +5,7 @@ class WarehouseSerializer(serializers.Serializer):
   name = serializers.CharField(max_length=200)
   address = serializers.CharField(required=False, allow_blank=True)
   total_capacity = serializers.FloatField(default=0.0)
+  created_by = serializers.CharField(read_only=True)
   created_at = serializers.DateTimeField(read_only=True)
 
 class ZoneSerializer(serializers.Serializer):

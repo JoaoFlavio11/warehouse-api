@@ -3,10 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from core.permissions import IsFirebaseAuthenticated
 from .models import Order, OrderItem
+from .serializers import OrderSerializer
 from warehouse.models import Product
 from routing.graph_algorithms import WarehouseGraph
 
-
+"""
 class OrderCreateView(APIView):
     """Criar pedido e sugerir rota de picking"""
 
@@ -86,9 +87,24 @@ class OrderCreateView(APIView):
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
+"""
 
 class OrderListView(APIView):
+    permission_classes = [IsFirebaseAuthenticated]
+
+    def get(self, request):
+        # ... código para listar pedidos
+        orders = Order.nodes.all()
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)
+
+    def post(self, request): # <-- Adicionar este método
+        serializer = OrderSerializer(data=request.data)
+        if serializer.is_valid():
+            # Lógica de criação do pedido (ajuste conforme seu modelo)
+            order = Order(**serializer.validated_data).save() 
+            return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     """ Listar pedidos """
     permission_classes = [IsFirebaseAuthenticated]
 
