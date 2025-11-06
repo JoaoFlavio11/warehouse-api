@@ -1,3 +1,4 @@
+# core/middleware.py
 from django.utils.functional import SimpleLazyObject
 from django.http import JsonResponse
 from firebase_admin import auth
