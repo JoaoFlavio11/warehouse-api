@@ -1,7 +1,7 @@
 # core/middleware.py
 from django.utils.functional import SimpleLazyObject
 from django.http import JsonResponse
-from firebase_admin import auth
+from core.firebase_auth import verify_firebase_token
 
 class FirebaseAuthenticationMiddleware:
     def __init__(self, get_response):
