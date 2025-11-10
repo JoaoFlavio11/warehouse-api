@@ -1,13 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status, generics, permissions
 from .models import Order
 from .serializers import OrderSerializer
-
 
 class OrderListView(generics.ListAPIView):
     """Listar todos os pedidos"""
     serializer_class = OrderSerializer
+    permission_classes = [permissions.AllowAny]  # <-- Adicionado
 
     def get_queryset(self):
         return Order.nodes.all()
@@ -20,6 +20,7 @@ class OrderListView(generics.ListAPIView):
 
 class OrderCreateView(APIView):
     """Criar novo pedido"""
+    permission_classes = [permissions.AllowAny]  # <-- Adicionado
 
     def post(self, request):
         serializer = OrderSerializer(data=request.data)
@@ -31,7 +32,4 @@ class OrderCreateView(APIView):
                 status=status.HTTP_201_CREATED
             )
         
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -71,7 +71,7 @@ class ProductListCreateView(APIView):
       product = Product(
         sku=serializer.validated_data['sku'],
         name=serializer.validated_data['name'],
-        quantity=serializer.validated_data('quantity', 0),
+        quantity=erializer.validated_dataget('quantity', 0),
         unit=serializer.validated_data('unit', 'UN'),
       ).save()
       

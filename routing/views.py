@@ -1,5 +1,7 @@
+#routing/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import permissions
 from rest_framework import status
 from core.permissions import IsFirebaseAuthenticated
 from .graph_algorithms import WarehouseGraph
@@ -84,3 +86,16 @@ class ShortestPathView(APIView):
                 {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class RoutingHealthView(APIView):
+    """Endpoint raiz para confirmar que o módulo de roteamento está ativo"""
+    permission_classes = [permissions.AllowAny] 
+
+    def get(self, request):
+        return Response({
+            'message': 'Routing API online',
+            'available_endpoints': [
+                '/api/routing/picking-route/',
+                '/api/routing/shortest-path/',
+            ]
+        })

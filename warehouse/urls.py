@@ -1,11 +1,10 @@
-# core/urls.py
+# warehouses/urls.py
 from django.urls import path
 from .views import (
     WarehouseListCreateView,
     WarehouseDetailView,
     ProductListCreateView,
     HealthCheckView,
-    #DashboardStatsView
 )
 
 urlpatterns = [
@@ -13,5 +12,4 @@ urlpatterns = [
   path('warehouses/', WarehouseListCreateView.as_view(), name='warehouse-list'),
   path('warehouses/<str:uid>/', WarehouseDetailView.as_view(), name='warehouse-detail'),
   path('products/', ProductListCreateView.as_view(), name='product-list'),
-  #path('dashboard/stats/', DashboardStatsView.as_view(), name='dashboard-stats'), # <-- Adicionar esta linha
 ]
