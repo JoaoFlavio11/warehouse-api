@@ -15,4 +15,5 @@ urlpatterns = [
     path('orders/', include('orders.urls')),
     path('routing/', include('routing.urls')),
     path('analytics/', include('analytics.urls')),
+    path('reports/', include('reports.urls')),
 ]

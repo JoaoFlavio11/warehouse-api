@@ -10,8 +10,7 @@ class FirebaseAuthenticationMiddleware(MiddlewareMixin):
     Middleware para autenticação via Firebase.
     - Verifica o header Authorization: Bearer <token>.
     - Anexa o usuário Firebase decodificado em request.firebase_user.
-    - Ignora rotas /admin/ e /health/.
-    - Usa import dinâmico de verify_firebase_token para evitar erros de import.
+    - Ignora rotas /admin/, /health/ e /reports/.
     """
 
     def _get_verifier(self):
@@ -28,25 +27,25 @@ class FirebaseAuthenticationMiddleware(MiddlewareMixin):
         super().__init__(get_response)
 
     def __call__(self, request):
-        # Inicializa o atributo
-        request.firebase_user = None
-
-        # Ignorar autenticação para rotas específicas
-        if request.path.startswith('/admin/') or request.path.endswith('/health/'):
+        # 🔹 ignora autenticação para rotas públicas
+        if (
+            request.path.startswith("/admin/")
+            or request.path.endswith("/health/")
+            or request.path.startswith("/reports/")
+        ):
             return self.get_response(request)
 
-        # Obter a função verificador
+        request.firebase_user = None
         verifier = self._get_verifier()
         if verifier is None:
-            # Firebase indisponível ou falha de import — segue sem autenticação
             logger.debug("Firebase verifier indisponível (modo dev).")
             return self.get_response(request)
 
         # Extrair token do cabeçalho Authorization
-        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        auth_header = request.META.get("HTTP_AUTHORIZATION", "")
         token = None
-        if auth_header and auth_header.lower().startswith('bearer '):
-            token = auth_header.split(' ', 1)[1].strip()
+        if auth_header and auth_header.lower().startswith("bearer "):
+            token = auth_header.split(" ", 1)[1].strip()
 
         if not token:
             # Nenhum token fornecido — segue sem autenticação
@@ -57,16 +56,8 @@ class FirebaseAuthenticationMiddleware(MiddlewareMixin):
             decoded = verifier(token)
             if decoded:
                 request.firebase_user = decoded
-                logger.debug("Usuário Firebase autenticado: %s", decoded.get('uid'))
-            else:
-                logger.info("Token Firebase inválido ou expirado.")
-                # Opcional: Retornar 401 se quiser bloquear requisições com token inválido
-                # return JsonResponse({'error': 'Invalid or expired token'}, status=401)
+                logger.debug("Usuário Firebase autenticado: %s", decoded.get("uid"))
         except Exception as e:
             logger.warning("Erro ao verificar token Firebase: %s", e)
-            # Também opcional retornar 401 aqui
-            # return JsonResponse({'error': f'Invalid token: {str(e)}'}, status=401)
 
-        # Continua o fluxo normalmente
-        response = self.get_response(request)
-        return response
+        return self.get_response(request)

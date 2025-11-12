@@ -1,0 +1,371 @@
+﻿[
+  {
+    "n": {
+      "identity": 0,
+      "labels": [
+        "Warehouse"
+      ],
+      "properties": {
+        "uid": "a33dd0015e3f44a5923b2aeba1765408",
+        "name": "Centro de distribuição SP",
+        "addres": "Av. Industrial, 1000 - São Paulo, SP",
+        "created_at": 1761604088.360766,
+        "total_capacity": 10000.0
+      },
+      "elementId": "0"
+    }
+  },
+  {
+    "n": {
+      "identity": 1,
+      "labels": [
+        "Zone"
+      ],
+      "properties": {
+        "uid": "4af6c45345694b94a263306d1199e38b",
+        "name": "Recebimento",
+        "zone_type": "receiving"
+      },
+      "elementId": "1"
+    }
+  },
+  {
+    "n": {
+      "identity": 2,
+      "labels": [
+        "Zone"
+      ],
+      "properties": {
+        "uid": "4dead83ea2f941d5bb6259777f0dd383",
+        "name": "Armazenagem A",
+        "zone_type": "storage"
+      },
+      "elementId": "2"
+    }
+  },
+  {
+    "n": {
+      "identity": 3,
+      "labels": [
+        "Aisle"
+      ],
+      "properties": {
+        "uid": "50817b11089d46bd81620a7a46aa4ebd",
+        "code": "A"
+      },
+      "elementId": "3"
+    }
+  },
+  {
+    "n": {
+      "identity": 4,
+      "labels": [
+        "Shelf"
+      ],
+      "properties": {
+        "uid": "8c39f106c9d64ce9bf474944400a7d54",
+        "code": "01",
+        "levels": 4
+      },
+      "elementId": "4"
+    }
+  },
+  {
+    "n": {
+      "identity": 5,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "23299ebd12fb4fa0be2c18d50c593a7f",
+        "code": "A-01-01-A",
+        "occupied": 50.0,
+        "capacity": 100.0
+      },
+      "elementId": "5"
+    }
+  },
+  {
+    "n": {
+      "identity": 6,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "c6598fcd9ee84c9f8dec5f9a2d0a39f0",
+        "code": "A-01-01-B",
+        "occupied": 200.0,
+        "capacity": 100.0
+      },
+      "elementId": "6"
+    }
+  },
+  {
+    "n": {
+      "identity": 7,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "fa7c711f11624206a664f998dd9d41a5",
+        "code": "A-01-02-A",
+        "occupied": 100.0,
+        "capacity": 100.0
+      },
+      "elementId": "7"
+    }
+  },
+  {
+    "n": {
+      "identity": 8,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "cab7ae85ebff490a9366fc47cd63a168",
+        "code": "A-01-02-B",
+        "occupied": 75.0,
+        "capacity": 100.0
+      },
+      "elementId": "8"
+    }
+  },
+  {
+    "n": {
+      "identity": 9,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "d79c1a10fb104a30a0a6c459f2cd1890",
+        "code": "A-01-03-A",
+        "occupied": 150.0,
+        "capacity": 100.0
+      },
+      "elementId": "9"
+    }
+  },
+  {
+    "n": {
+      "identity": 10,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "08685c2e68804afe9806c0eb5b8e0f41",
+        "code": "A-01-03-B",
+        "occupied": 0.0,
+        "capacity": 100.0
+      },
+      "elementId": "10"
+    }
+  },
+  {
+    "n": {
+      "identity": 11,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "e4a0077c82344cb4b81a2ba717c3f227",
+        "code": "A-01-04-A",
+        "occupied": 0.0,
+        "capacity": 100.0
+      },
+      "elementId": "11"
+    }
+  },
+  {
+    "n": {
+      "identity": 12,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "d497dfc462c3440aa126f98f1629e2fd",
+        "code": "A-01-04-B",
+        "occupied": 0.0,
+        "capacity": 100.0
+      },
+      "elementId": "12"
+    }
+  },
+  {
+    "n": {
+      "identity": 13,
+      "labels": [
+        "Shelf"
+      ],
+      "properties": {
+        "uid": "b869e9fa775348d8a3462796b739c2e4",
+        "code": "02",
+        "levels": 4
+      },
+      "elementId": "13"
+    }
+  },
+  {
+    "n": {
+      "identity": 14,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "966d84502ed94f11903c85ce0853a388",
+        "code": "A-02-01-A",
+        "occupied": 0.0,
+        "capacity": 100.0
+      },
+      "elementId": "14"
+    }
+  },
+  {
+    "n": {
+      "identity": 15,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "bfa75c4679614ac9a9e270dd0421df99",
+        "code": "A-02-01-B",
+        "occupied": 0.0,
+        "capacity": 100.0
+      },
+      "elementId": "15"
+    }
+  },
+  {
+    "n": {
+      "identity": 16,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "402ef6bc974d4a47bf7639b312015259",
+        "code": "A-02-02-A",
+        "occupied": 0.0,
+        "capacity": 100.0
+      },
+      "elementId": "16"
+    }
+  },
+  {
+    "n": {
+      "identity": 17,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "a264db4369604223bc7fbf174e4c5bbb",
+        "code": "A-02-02-B",
+        "occupied": 0.0,
+        "capacity": 100.0
+      },
+      "elementId": "17"
+    }
+  },
+  {
+    "n": {
+      "identity": 18,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "116102f1735d445d86c1af5b8207b72d",
+        "code": "A-02-03-A",
+        "occupied": 0.0,
+        "capacity": 100.0
+      },
+      "elementId": "18"
+    }
+  },
+  {
+    "n": {
+      "identity": 19,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "fc4de73ef8df45b19e55630dd6930bdd",
+        "code": "A-02-03-B",
+        "occupied": 0.0,
+        "capacity": 100.0
+      },
+      "elementId": "19"
+    }
+  },
+  {
+    "n": {
+      "identity": 20,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "93423ba299cd4fed9f92059b3d617518",
+        "code": "A-02-04-A",
+        "occupied": 0.0,
+        "capacity": 100.0
+      },
+      "elementId": "20"
+    }
+  },
+  {
+    "n": {
+      "identity": 21,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "f19a138183854115a1ed4be146e0dfcb",
+        "code": "A-02-04-B",
+        "occupied": 0.0,
+        "capacity": 100.0
+      },
+      "elementId": "21"
+    }
+  },
+  {
+    "n": {
+      "identity": 22,
+      "labels": [
+        "Shelf"
+      ],
+      "properties": {
+        "uid": "70ebcf80f59842b0992566873be259c7",
+        "code": "03",
+        "levels": 4
+      },
+      "elementId": "22"
+    }
+  },
+  {
+    "n": {
+      "identity": 23,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "dbc1389a889341339e92f27e1f999ab8",
+        "code": "A-03-01-A",
+        "occupied": 0.0,
+        "capacity": 100.0
+      },
+      "elementId": "23"
+    }
+  },
+  {
+    "n": {
+      "identity": 24,
+      "labels": [
+        "Bin"
+      ],
+      "properties": {
+        "uid": "898a46ca8246423ca7badb8d84de67f4",
+        "code": "A-03-01-B",
+        "occupied": 0.0,
+        "capacity": 100.0
+      },
+      "elementId": "24"
+    }
+  }
+]
