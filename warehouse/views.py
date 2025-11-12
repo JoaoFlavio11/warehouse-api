@@ -1,103 +1,93 @@
-#warehouse/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from core.permissions import IsFirebaseAuthenticated
-from core.firebase_auth import firebase_auth_required
-from .models import Warehouse, Zone, Product, Bin
-from .serializers import WarehouseSerializer, ZoneSerializer, ProductSerializer, BinSerializer
+from rest_framework.permissions import AllowAny  # ✅ adicionado
+from .models import Warehouse, Bin, Product
+from .serializers import WarehouseSerializer, ProductSerializer
+
 
 class WarehouseListCreateView(APIView):
-  # permission_classes = [IsFirebaseAuthenticated] # Removido para usar o decorador
-  @firebase_auth_required
-  def dispatch(self, request, *args, **kwargs):
-    return super().dispatch(request, *args, **kwargs)
-  
-  def get(self, request):
-    """ listar os galpões/warehouses"""
-    warehouses = Warehouse.nodes.all()
-    serializer = WarehouseSerializer(warehouses, many=True)
-    return Response(serializer.data)
+    """Lista ou cria armazéns"""
+    permission_classes = [AllowAny]  # ✅ público
 
-  def post(self, request):
-    """ criar um novo galpão/warehouse"""
-    serializer = WarehouseSerializer(data=request.data)
-    if serializer.is_valid():
-      warehouse = Warehouse(**serializer.validated_data, created_by=request.user_uid).save()
-      return Response(
-        WarehouseSerializer(warehouse).data,
-        status=status.HTTP_201_CREATED
-      )
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        """Listar todos os armazéns"""
+        warehouses = Warehouse.nodes.all()
+        data = []
+        for w in warehouses:
+            # cálculo de ocupação (soma dos bins conectados)
+            total_capacity = 0
+            total_occupied = 0
+            for zone in w.zones:
+                for aisle in zone.aisles:
+                    for shelf in aisle.shelves:
+                        for b in shelf.bins:
+                            total_capacity += getattr(b, "capacity", 0) or 0
+                            total_occupied += getattr(b, "occupied", 0) or 0
+
+            occupancy = (
+                round((total_occupied / total_capacity) * 100, 1)
+                if total_capacity > 0 else 0
+            )
+
+            data.append({
+                "id": w.uid,
+                "name": w.name,
+                "address": getattr(w, "addres", ""),  # modelo tem "addres"
+                "capacity": getattr(w, "total_capacity", 0),
+                "occupancy": occupancy,
+            })
+
+        return Response(data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        """Criar um novo armazém"""
+        serializer = WarehouseSerializer(data=request.data)
+        if serializer.is_valid():
+            warehouse = Warehouse(
+                name=serializer.validated_data["name"],
+                addres=serializer.validated_data.get("address", ""),
+                total_capacity=serializer.validated_data.get("capacity", 0),
+                created_by="dev_user",  # mock temporário
+            ).save()
+            return Response({
+                "id": warehouse.uid,
+                "name": warehouse.name,
+                "address": warehouse.addres,
+                "capacity": warehouse.total_capacity,
+                "occupancy": 0,
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class WarehouseDetailView(APIView):
-  # permission_classes = [IsFirebaseAuthenticated] # Removido para usar o decorador
-  @firebase_auth_required
-  def dispatch(self, request, *args, **kwargs):
-    return super().dispatch(request, *args, **kwargs)
-  
-  def get(self, request, uid):
-    """ Detalhes de um galpão/warehouse específico """
-    try:
-      warehouse = Warehouse.nodes.get(uid=uid)
-      serializer = WarehouseSerializer(warehouse)
-      return Response(serializer.data)
-    except Warehouse.DoesNotExist:
-      return Response(
-        {'error': 'Galpão não encontrado'}, status=status.HTTP_404_NOT_FOUND
-      )
-      
-class ProductListCreateView(APIView):
-  # permission_classes = [IsFirebaseAuthenticated] # Removido para usar o decorador
-  @firebase_auth_required
-  def dispatch(self, request, *args, **kwargs):
-    return super().dispatch(request, *args, **kwargs)
-  def get(self, request):
-    """ listar os produtos """
-    products = Product.nodes.all()
-    data = []
-    for product in products:
-      product_data = ProductSerializer(product).data 
-      # adicionar localização se existir:
-      location = product.location.single()
-      if location:
-        product_data['location_code'] = location.code 
-      data.append(product_data) 
-    return Response(data)
-  
-  def post(self, request):
-    """ criar um novo produto """
-    serializer = ProductSerializer(data=request.data)
-    if serializer.is_valid():
-      product = Product(
-        sku=serializer.validated_data['sku'],
-        name=serializer.validated_data['name'],
-        quantity=erializer.validated_dataget('quantity', 0),
-        unit=serializer.validated_data('unit', 'UN'),
-      ).save()
-      
-      # Se localização foi fornecida, criar relacionamento
-      location_code = serializer.validated_data.get('location_code')
-      if location_code:
+    """Detalhar um armazém específico"""
+    permission_classes = [AllowAny]  # ✅ público
+
+    def get(self, request, uid):
         try:
-          bin_location = Bin.nodes.get(code=location_code)
-          product.location.connect(bin_location)
-        except Bin.DoesNotExist:
-          pass
-        
-      return Response(
-        ProductSerializer(product).data,
-        status=status.HTTP_201_CREATED
-      )
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-  
-class HealthCheckView(APIView):
-    permission_classes = []
-    
-    def get(self, request):
-        """Health check endpoint"""
-        return Response({
-            'status': 'healthy',
-            'service': 'WMS Graph API',
-            'neo4j': 'connected'
-        })
+            w = Warehouse.nodes.get(uid=uid)
+            total_capacity = 0
+            total_occupied = 0
+            for zone in w.zones:
+                for aisle in zone.aisles:
+                    for shelf in aisle.shelves:
+                        for b in shelf.bins:
+                            total_capacity += getattr(b, "capacity", 0) or 0
+                            total_occupied += getattr(b, "occupied", 0) or 0
+
+            occupancy = (
+                round((total_occupied / total_capacity) * 100, 1)
+                if total_capacity > 0 else 0
+            )
+
+            data = {
+                "id": w.uid,
+                "name": w.name,
+                "address": getattr(w, "addres", ""),
+                "capacity": getattr(w, "total_capacity", 0),
+                "occupancy": occupancy,
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except Warehouse.DoesNotExist:
+            return Response({"error": "Galpão não encontrado"}, status=404)
