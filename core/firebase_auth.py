@@ -20,10 +20,11 @@ try:
     FIREBASE_CRED_PATH = os.getenv("FIREBASE_CREDENTIALS_JSON")  # caminho do JSON de credenciais
 
     def _init_firebase_app():
-        """Inicializa o app Firebase uma única vez"""
+        """Inicializa o app Firebase uma única vez."""
         global _FIREBASE_INITIALIZED
         if _FIREBASE_INITIALIZED:
             return
+
         try:
             if FIREBASE_CRED_PATH and os.path.exists(FIREBASE_CRED_PATH):
                 cred = credentials.Certificate(FIREBASE_CRED_PATH)
@@ -71,27 +72,31 @@ except Exception as import_exc:
 
 def firebase_auth_required(view_func):
     """
-    Decorador para proteger views baseadas em classe (APIView).
-    Verifica o token Bearer no header e adiciona request.user_id se for válido.
+    Decorador para proteger views (APIView ou function-based).
+    Verifica o header Authorization: Bearer <token> e injeta
+    `request.user` e `request.user_id` se o token for válido.
     """
     @wraps(view_func)
-    def wrapper(self, request, *args, **kwargs):
-        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+    def _wrapped_view(self, request, *args, **kwargs):
+        auth_header = request.META.get("HTTP_AUTHORIZATION", "")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JsonResponse({"error": "Token ausente ou inválido"}, status=401)
 
-        if not auth_header or not auth_header.startswith('Bearer '):
-            return JsonResponse({'error': 'Authorization header missing or invalid'}, status=401)
-
-        token = auth_header.split('Bearer ')[1].strip()
+        token = auth_header.split("Bearer ")[1].strip()
         try:
             decoded_token = verify_firebase_token(token)
             if not decoded_token:
-                return JsonResponse({'error': 'Invalid or expired token'}, status=401)
-            # adiciona o user_id no request
-            request.user_id = decoded_token.get('uid')
+                return JsonResponse({"error": "Token inválido ou expirado"}, status=401)
+
+            # ✅ adiciona informações do usuário autenticado no request
+            request.user = decoded_token
+            request.user_id = decoded_token.get("uid")
+
+            logger.debug("Usuário autenticado via Firebase: %s", request.user_id)
         except Exception as e:
             logger.warning("Erro ao verificar token Firebase: %s", e)
-            return JsonResponse({'error': f'Invalid token: {str(e)}'}, status=401)
+            return JsonResponse({"error": f"Erro de autenticação: {str(e)}"}, status=401)
 
         return view_func(self, request, *args, **kwargs)
 
-    return wrapper
+    return _wrapped_view
