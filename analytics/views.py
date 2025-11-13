@@ -1,144 +1,96 @@
-# analytics/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from neo4j import GraphDatabase
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from datetime import datetime
-
-# ============================================================
-# Conexão persistente com o Neo4j
-# ============================================================
-URI = "bolt://localhost:7687"
-AUTH = ("neo4j", "wms_password_123")
-
-driver = GraphDatabase.driver(URI, auth=AUTH)
+from core.neo4j_driver import get_driver  # ✅ pega o driver seguro
 
 
-@method_decorator(csrf_exempt, name='dispatch')
 class AnalyticsView(APIView):
-    """Retorna métricas completas para o dashboard Analytics."""
-
-    permission_classes = []
-
     def get(self, request):
+        analytics = {}
+
         try:
+            driver = get_driver()  # ✅ sempre garante uma conexão ativa
+
             with driver.session() as session:
-                # ===============================================
-                # ORDERS
-                # ===============================================
-                query_orders = """
-                MATCH (o:Order)
-                OPTIONAL MATCH (o)-[:HAS_STATUS]->(s:Status)
-                RETURN 
-                    count(o) AS totalOrders,
-                    collect(s.name) AS statuses
-                """
-                orders_result = session.run(query_orders).single()
-                total_orders = orders_result["totalOrders"]
-                statuses = [s for s in orders_result["statuses"] if s]
+                # --- ORDERS ---
+                orders_total = session.run("MATCH (o:Order) RETURN count(o) AS total").single()["total"]
 
-                # Conta por status
-                by_status = {}
-                for status_name in statuses:
-                    by_status[status_name] = by_status.get(status_name, 0) + 1
+                orders_by_status_result = session.run("""
+                    MATCH (o:Order)
+                    RETURN o.status AS status, count(o) AS count
+                """)
+                orders_by_status = {record["status"]: record["count"] for record in orders_by_status_result}
 
-                # Pedidos ao longo do tempo (últimos 30 dias)
-                # Corrige: converte timestamp (Double/Integer) para data string
-                query_period = """
-                MATCH (o:Order)
-                WHERE o.created_at IS NOT NULL
-                RETURN o.created_at AS ts
-                ORDER BY ts ASC
-                LIMIT 200
-                """
-                period_results = session.run(query_period)
-                by_period = []
-                for record in period_results:
-                    ts = record["ts"]
-                    if isinstance(ts, (int, float)):
-                        date_str = datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
-                    else:
-                        date_str = str(ts)
-                    # Conta acumulada por dia
-                    existing = next((item for item in by_period if item["date"] == date_str), None)
-                    if existing:
-                        existing["count"] += 1
-                    else:
-                        by_period.append({"date": date_str, "count": 1})
+                orders_by_period_result = session.run("""
+                    MATCH (o:Order)
+                    WITH date(o.date) AS date, count(o) AS count
+                    RETURN date, count ORDER BY date
+                """)
+                orders_by_period = [
+                    {"date": str(record["date"]), "count": record["count"]}
+                    for record in orders_by_period_result
+                ]
 
-                # ===============================================
-                # PRODUCTS
-                # ===============================================
-                query_products = """
-                MATCH (p:Product)
-                OPTIONAL MATCH (p)-[:HAS_MOVEMENT]->(m:Movement)
-                RETURN 
-                    count(p) AS totalProducts,
-                    count(m) AS totalMovements,
-                    count { (p) WHERE p.current_stock <= 5 AND p.current_stock > 0 } AS lowStock,
-                    count { (p) WHERE p.current_stock = 0 } AS outOfStock
-                """
-                prod = session.run(query_products).single()
+                # --- PRODUCTS ---
+                products_low_stock = session.run("""
+                    MATCH (p:Product)
+                    WHERE p.stock < 10 AND p.stock > 0
+                    RETURN count(p) AS low_stock
+                """).single()["low_stock"]
 
-                # ===============================================
-                # WAREHOUSES
-                # ===============================================
-                query_warehouses = """
-                MATCH (w:Warehouse)
-                OPTIONAL MATCH (w)-[:CONTAINS]->(p:Product)
-                WITH w, count(p) AS used
-                RETURN w.id AS id, w.name AS name, 
-                       used AS used, w.capacity AS capacity
-                ORDER BY used DESC LIMIT 5
-                """
-                top_warehouses = []
-                total_capacity = 0
-                total_used = 0
-                for record in session.run(query_warehouses):
-                    capacity = record["capacity"] or 1
-                    usage_rate = round((record["used"] / capacity) * 100, 2)
-                    top_warehouses.append(
-                        {
-                            "id": record["id"],
-                            "name": record["name"],
-                            "usage": usage_rate,
-                        }
-                    )
-                    total_used += record["used"]
-                    total_capacity += capacity
+                products_out_of_stock = session.run("""
+                    MATCH (p:Product)
+                    WHERE p.stock = 0
+                    RETURN count(p) AS out_of_stock
+                """).single()["out_of_stock"]
 
-                utilization_rate = (
-                    round((total_used / total_capacity) * 100, 2)
-                    if total_capacity > 0
-                    else 0
-                )
+                products_total_movements = session.run("""
+                    MATCH (:Movement)
+                    RETURN count(*) AS total_movements
+                """).single()["total_movements"]
 
-            # ===============================================
-            # RETORNO PADRONIZADO PARA O FRONTEND
-            # ===============================================
-            analytics = {
-                "orders": {
-                    "total": total_orders,
-                    "byStatus": by_status,
-                    "byPeriod": by_period,
-                },
-                "products": {
-                    "lowStock": prod["lowStock"],
-                    "outOfStock": prod["outOfStock"],
-                    "totalMovements": prod["totalMovements"],
-                },
-                "warehouses": {
-                    "utilizationRate": utilization_rate,
-                    "topWarehouses": top_warehouses,
-                },
-            }
+                # --- WAREHOUSES ---
+                warehouses_result = session.run("""
+                    MATCH (w:Warehouse)
+                    RETURN w.id AS id, w.name AS name, w.utilizationRate AS usage
+                    ORDER BY w.utilizationRate DESC
+                    LIMIT 5
+                """)
+                top_warehouses = [
+                    {"id": record["id"], "name": record["name"], "usage": record["usage"]}
+                    for record in warehouses_result
+                ]
 
-            return Response(analytics, status=status.HTTP_200_OK)
+                utilization_rate = session.run("""
+                    MATCH (w:Warehouse)
+                    RETURN avg(w.utilizationRate) AS utilization_rate
+                """).single()["utilization_rate"]
+
+                # --- Consolidação final ---
+                analytics = {
+                    "orders": {
+                        "total": orders_total,
+                        "byStatus": orders_by_status,
+                        "byPeriod": orders_by_period,
+                    },
+                    "products": {
+                        "lowStock": products_low_stock,
+                        "outOfStock": products_out_of_stock,
+                        "totalMovements": products_total_movements,
+                    },
+                    "warehouses": {
+                        "utilizationRate": utilization_rate,
+                        "topWarehouses": top_warehouses,
+                    },
+                }
+
+                print("✅ Analytics gerados com sucesso")
 
         except Exception as e:
+            print("❌ Erro ao gerar analytics:", str(e))
             return Response(
-                {"error": f"Erro ao consultar o Neo4j: {str(e)}"},
+                {"error": f"Erro ao gerar analytics: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+        return Response(analytics, status=status.HTTP_200_OK)

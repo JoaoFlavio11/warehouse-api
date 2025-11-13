@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'core',
     'warehouse',
     'inventory',
-    'routing',
     'orders',
     'dashboard',
     'products',
