@@ -120,10 +120,6 @@ wms-graph-api/
 │   ├── views.py
 │   └── urls.py
 ├── inventory/                 # Módulo de inventário
-├── routing/                   # Algoritmos de grafo
-│   ├── graph_algorithms.py   # NetworkX + TSP
-│   ├── views.py
-│   └── urls.py
 ├── orders/                    # Gestão de pedidos
 │   ├── models.py             # Order, OrderItem
 │   ├── views.py
@@ -194,13 +190,6 @@ GET    /api/warehouses/{uid}/     # Detalhes
 ```http
 GET    /api/products/             # Listar produtos
 POST   /api/products/             # Criar produto
-```
-
-### Routing
-
-```http
-POST   /api/routing/picking-route/    # Rota ótima de picking
-POST   /api/routing/shortest-path/    # Caminho mais curto
 ```
 
 ### Orders
@@ -439,11 +428,8 @@ docker-compose restart neo4j
 - [x] CRUD Warehouse/Products
 - [x] Algoritmos de routing
 - [x] Sistema de Orders
-- [ ] Cache com Redis
-- [ ] WebSockets tempo real
-- [ ] Dashboard analytics
-- [ ] Machine Learning para previsão
-- [ ] Deploy production
+- [x] Dashboard analytics
+- [x] Deploy production
 
 ---
 

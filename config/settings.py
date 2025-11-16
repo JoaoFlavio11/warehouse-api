@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     # Local apps
     'core',
     'warehouse',
-    'inventory',
     'orders',
     'dashboard',
     'products',
