@@ -1,6 +1,8 @@
 from django.urls import path
-from . import views
+from .views import DashboardStatsView, DashboardExportPDF, DashboardExportExcel
 
 urlpatterns = [
-    path("generate/", views.generate_report, name="generate_report"),
+    path("stats/", DashboardStatsView.as_view(), name="dashboard-stats"),
+    path("export/pdf/", DashboardExportPDF.as_view(), name="dashboard-export-pdf"),
+    path("export/excel/", DashboardExportExcel.as_view(), name="dashboard-export-excel"),
 ]
