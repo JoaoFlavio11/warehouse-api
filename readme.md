@@ -67,12 +67,6 @@ Sistema de gerenciamento de armazém baseado em grafos, desenvolvido com Django,
 - Rastreamento de localização por bin
 - Controle de quantidade disponível
 
-### ✅ Otimização de Rotas
-
-- Algoritmo TSP (Traveling Salesman Problem) para picking
-- Caminho mais curto entre bins (Dijkstra)
-- Grafo ponderado baseado na estrutura física do warehouse
-
 ### ✅ Gestão de Pedidos
 
 - Criação de pedidos com múltiplos items
@@ -214,18 +208,6 @@ Todas as rotas (exceto `/health/`) exigem token Firebase:
 ```bash
 curl -X GET http://localhost:8000/api/warehouses/ \
   -H "Authorization: Bearer SEU_TOKEN_FIREBASE"
-```
-
-No Next.js:
-
-```typescript
-import { getAuth } from "firebase/auth";
-
-const auth = getAuth();
-const user = auth.currentUser;
-const token = await user?.getIdToken();
-
-// Usar token nas requisições
 ```
 
 ---
@@ -426,16 +408,8 @@ docker-compose restart neo4j
 - [x] Setup base Django + Neo4j
 - [x] Autenticação Firebase
 - [x] CRUD Warehouse/Products
-- [x] Algoritmos de routing
 - [x] Sistema de Orders
 - [x] Dashboard analytics
-- [x] Deploy production
-
----
-
-## 📄 Licença
-
-MIT License - Sinta-se livre para usar em projetos pessoais e comerciais.
 
 ---
 
