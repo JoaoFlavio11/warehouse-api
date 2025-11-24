@@ -1,416 +1,213 @@
-# 📦 WMS Graph API - Warehouse Management System
+<div align="center">
 
-Sistema de gerenciamento de armazém baseado em grafos, desenvolvido com Django, Neo4j e algoritmos de otimização de rotas.
+# 📦 EasyRoute API
+### Sistema de Gerenciamento de Armazém (WMS) com Banco de Grafos
+
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-5.0%2B-092E20?style=for-the-badge&logo=django&logoColor=white)
+![Neo4j](https://img.shields.io/badge/Neo4j-008CC1?style=for-the-badge&logo=neo4j&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+
+![GitHub repo size](https://img.shields.io/github/repo-size/JoaoFlavio11/warehouse-api?style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/JoaoFlavio11/warehouse-api?style=flat-square)
+![GitHub license](https://img.shields.io/github/license/JoaoFlavio11/warehouse-api?style=flat-square)
+
+</div>
 
 ---
 
-## 🏗️ Arquitetura do Sistema
+## 📚 Sumário
+- [🎯 Visão Geral](#-visão-geral-do-projeto)
+- [🚀 Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [✨ Funcionalidades](#-funcionalidades)
+- [🧬 Modelo de Grafo (Neo4j)](#-modelo-de-grafo-neo4j)
+- [🛠️ Instalação e Configuração](#-instalação-e-configuração)
+- [📂 Estrutura do Projeto](#-estrutura-do-projeto)
+- [📖 Endpoints Principais](#-endpoints-principais)
+- [🔐 Autenticação](#-autenticação-firebase)
+
+---
+
+## 🎯 Visão Geral do Projeto
+
+O **EasyRoute API** é o backend robusto do sistema EasyRoute, um WMS (*Warehouse Management System*) moderno e inteligente. Diferente dos sistemas tradicionais relacionais, utilizamos o poder dos **Bancos de Dados de Grafos (Neo4j)** para modelar a complexa hierarquia física de um armazém e otimizar rotas de coleta (*picking*).
+
+**Principais capacidades:**
+* Gerenciamento hierárquico (Warehouse → Zone → Aisle → Shelf → Bin).
+* Controle de inventário com localização precisa.
+* Roteirização otimizada utilizando algoritmos de grafos (caminho mais curto).
+* Autenticação segura e escalável via Firebase.
+
+---
+
+## 🚀 Tecnologias Utilizadas
+
+| Categoria | Tecnologia | Badge |
+| :--- | :--- | :--- |
+| **Linguagem** | Python 3.11+ | ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white) |
+| **Framework Web** | Django 5.0+ | ![Django](https://img.shields.io/badge/-Django-092E20?logo=django&logoColor=white) |
+| **API** | Django REST Framework | ![DRF](https://img.shields.io/badge/-DRF-a30f2d?logo=django&logoColor=white) |
+| **Banco de Grafos** | Neo4j | ![Neo4j](https://img.shields.io/badge/-Neo4j-008CC1?logo=neo4j&logoColor=white) |
+| **OGM** | Neomodel | ![Neomodel](https://img.shields.io/badge/-Neomodel-blue) |
+| **Algoritmos** | NetworkX | ![NetworkX](https://img.shields.io/badge/-NetworkX-orange) |
+| **Autenticação** | Firebase Admin SDK | ![Firebase](https://img.shields.io/badge/-Firebase-FFCA28?logo=firebase&logoColor=black) |
+| **DevOps** | Docker + Docker Compose | ![Docker](https://img.shields.io/badge/-Docker-2496ED?logo=docker&logoColor=white) |
+
+---
+
+## ✨ Funcionalidades
+
+### 🏢 Estrutura do Armazém
+Modelagem hierárquica completa:
+> **Warehouse** (Armazém) ➔ **Zone** (Zona) ➔ **Aisle** (Corredor) ➔ **Shelf** (Prateleira) ➔ **Bin** (Caixa/Posição)
+
+### 📦 Inventário Inteligente
+* Cadastro de Produtos e SKUs.
+* Rastreamento de quantidade em tempo real.
+* Localização exata via relação `Product -[:STORED_IN]-> Bin`.
+
+### 🧾 Pedidos e Rotas
+* Criação de pedidos multi-itens.
+---
+
+## 🧬 Modelo de Grafo (Neo4j)
+
+Abaixo está a representação visual da modelagem dos nós e relacionamentos no Neo4j:
+
+```mermaid
+graph TD
+    W[Warehouse] -->|CONTAINS| Z[Zone]
+    Z -->|CONTAINS| A[Aisle]
+    A -->|CONTAINS| S[Shelf]
+    S -->|CONTAINS| B[Bin]
+    P[Product] -->|STORED_IN| B
+    O[Order] -->|HAS_ITEM| OI[OrderItem]
+    
+    classDef container fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef item fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    
+    class W,Z,A,S,B container;
+    class P,O,OI item;
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                   Frontend (Next.js)                    │
-│                    + Firebase Auth                      │
-└───────────────────────┬─────────────────────────────────┘
-                        │ HTTP + Bearer Token
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│              Django REST API (Python)                   │
-│  ┌───────────────────────────────────────────────────┐  │
-│  │  Firebase Auth Middleware                         │  │
-│  └───────────────────────────────────────────────────┘  │
-│  ┌───────────┐  ┌──────────┐  ┌─────────┐  ┌───────┐    │
-│  │ Warehouse │  │Inventory │  │ Routing │  │Orders │    │
-│  │   Module  │  │  Module  │  │ Module  │  │Module │    │
-│  └───────────┘  └──────────┘  └─────────┘  └───────┘    │
-│         │              │            │            │      │
-│         └──────────────┴────────────┴────────────┘      │
-│                        │                                │
-│              ┌─────────▼──────────┐                     │
-│              │   Neomodel OGM     │                     │
-│              └─────────┬──────────┘                     │
-└────────────────────────┼────────────────────────────────┘
-                         │ Bolt Protocol
-                         ▼
-           ┌─────────────────────────────┐
-           │      Neo4j Graph Database   │
-           │                             │
-           │  Nodes:                     │
-           │  • Warehouse                │
-           │  • Zone                     │
-           │  • Aisle                    │
-           │  • Shelf                    │
-           │  • Bin                      │
-           │  • Product                  │
-           │  • Order                    │
-           │                             │
-           │  Relationships:             │
-           │  • CONTAINS                 │
-           │  • STORED_IN                │
-           │  • LOCATED_AT               │
-           │  • HAS_ITEM                 │
-           └─────────────────────────────┘
-```
-![Diagrama de Arquitetura](./lib/images/graph.png)
----
+-----
 
-## 🎯 Funcionalidades Principais
+## 🛠️ Instalação e Configuração
 
-### ✅ Gerenciamento de Warehouse
+### Pré-requisitos
 
-- Criar e gerenciar múltiplos armazéns
-- Organização hierárquica: Warehouse → Zone → Aisle → Shelf → Bin
-- Controle de capacidade e ocupação
+  * Docker & Docker Compose
+  * Python 3.11+
 
-### ✅ Inventário
+### Passo a Passo
 
-- Registro de produtos com SKU único
-- Rastreamento de localização por bin
-- Controle de quantidade disponível
+1.  **Clone o repositório**
 
-### ✅ Gestão de Pedidos
+    ```bash
+    git clone [https://github.com/JoaoFlavio11/warehouse-api](https://github.com/JoaoFlavio11/warehouse-api)
+    cd warehouse-api
+    ```
 
-- Criação de pedidos com múltiplos items
-- Sugestão automática de rota ótima de separação
-- Rastreamento de status (pending, picking, completed)
+2.  **Configure as variáveis de ambiente**
+    Crie um arquivo `.env` na raiz do projeto:
 
-### ✅ Segurança
+    ```ini
+    NEO4J_URI=bolt://localhost:7687
+    NEO4J_USER=neo4j
+    NEO4J_PASSWORD=wms_password_123
 
-- Autenticação via Firebase tokens
-- Middleware de validação em todas as rotas
-- CORS configurado para frontend
+    # Caminho para sua chave privada do Firebase
+    FIREBASE_CREDENTIALS_PATH=./firebase-service-account.json
+    ```
 
----
+3.  **Inicie o Neo4j via Docker**
 
-## 🛠️ Stack Tecnológica
+    ```bash
+    docker-compose up -d neo4j
+    ```
 
-| Componente            | Tecnologia            | Versão |
-| --------------------- | --------------------- | ------ |
-| **Backend Framework** | Django                | 5.0+   |
-| **API**               | Django REST Framework | 3.14+  |
-| **Banco de Grafos**   | Neo4j                 | 5.15+  |
-| **OGM**               | Neomodel              | 5.2+   |
-| **Algoritmos**        | NetworkX              | 3.2+   |
-| **Autenticação**      | Firebase Admin SDK    | 6.3+   |
-| **Linguagem**         | Python                | 3.11+  |
-| **Containerização**   | Docker                | -      |
+    > Acesse o painel do Neo4j em: [http://localhost:7474](https://www.google.com/search?q=http://localhost:7474)
 
----
+4.  **Instale as dependências locais**
 
-## 📦 Estrutura do Projeto
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-```
-wms-graph-api/
-├── config/                    # Configurações Django
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-├── core/                      # Auth e middlewares
-│   ├── firebase_auth.py
-│   ├── middleware.py
-│   └── permissions.py
-├── warehouse/                 # Módulo de warehouse
-│   ├── models.py             # Warehouse, Zone, Aisle, Shelf, Bin, Product
-│   ├── serializers.py
-│   ├── views.py
-│   └── urls.py
-├── inventory/                 # Módulo de inventário
-├── orders/                    # Gestão de pedidos
-│   ├── models.py             # Order, OrderItem
-│   ├── views.py
-│   └── urls.py
-├── scripts/                   # Scripts utilitários
-│   └── seed_warehouse.py     # Popular dados de teste
-├── docker-compose.yml         # Neo4j local
-├── requirements.txt
-├── .env
-├── .gitignore
+5.  **Popule o banco com dados de teste (Seed)**
+
+    ```bash
+    python manage.py shell < scripts/seed_warehouse.py
+    ```
+
+6.  **Inicie o servidor**
+
+    ```bash
+    python manage.py runserver
+    ```
+
+-----
+
+## 📂 Estrutura do Projeto
+
+```plaintext
+warehouse-api/
+├── config/             # Configurações globais do Django
+├── core/               # Middleware e Autenticação Firebase
+├── warehouse/          # Modelagem da estrutura física (Nós e Relacionamentos)
+├── products/           # Gestão de Inventário
+├── orders/             # Lógica de Pedidos e Algoritmos de Rota
+├── dashboard/          # Métricas e Analytics
+├── lib/                # Utilitários e Algoritmos de Grafos Puros
+├── scripts/            # Scripts de Seed e automação
+├── docker-compose.yml
 └── manage.py
 ```
 
----
-
-## 🚀 Quick Start
-
-```bash
-# 1. Clonar e entrar no diretório
-git clone https://github.com/SEU_USUARIO/wms-graph-api.git
-cd wms-graph-api
-
-# 2. Criar e ativar virtualenv
-python -m venv venv
-source venv/bin/activate  # Mac/Linux
-# ou
-venv\Scripts\activate     # Windows
-
-# 3. Instalar dependências
-pip install -r requirements.txt
-
-# 4. Iniciar Neo4j
-docker-compose up -d
-
-# 5. Configurar .env
-cp .env.example .env
-# Editar .env com suas credenciais
-
-# 6. Migrações Django
-python manage.py migrate
-
-# 7. Popular dados de teste
-python manage.py shell < scripts/seed_warehouse.py
-
-# 8. Rodar servidor
-python manage.py runserver
-```
-
-Acesse:
-
-- API: http://localhost:8000/api/
-- Neo4j Browser: http://localhost:7474
-
----
+-----
 
 ## 📖 Endpoints Principais
 
-### Warehouse
+### 📦 Warehouses
+
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `/api/warehouses/` | Lista todos os armazéns |
+| `POST` | `/api/warehouses/` | Cria um novo armazém |
+| `GET` | `/api/warehouses/{uid}/` | Detalhes da hierarquia do armazém |
+
+### 📦 Produtos
+
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `/api/products/` | Listagem de inventário |
+| `POST` | `/api/products/` | Cadastro de SKU |
+
+### 🧾 Pedidos & Rotas
+
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `POST` | `/api/orders/create/` | Cria pedido e gera rota otimizada |
+| `GET` | `/api/orders/` | Histórico de pedidos |
+
+-----
+
+## 🔐 Autenticação (Firebase)
+
+O sistema utiliza tokens JWT do Firebase. Todas as requisições protegidas devem incluir o cabeçalho:
 
 ```http
-GET    /api/warehouses/           # Listar warehouses
-POST   /api/warehouses/           # Criar warehouse
-GET    /api/warehouses/{uid}/     # Detalhes
+Authorization: Bearer <SEU_TOKEN_JWT_FIREBASE>
 ```
 
-### Products
-
-```http
-GET    /api/products/             # Listar produtos
-POST   /api/products/             # Criar produto
-```
-
-### Orders
-
-```http
-GET    /api/orders/               # Listar pedidos
-POST   /api/orders/create/        # Criar pedido + rota
-```
-
-### Health
-
-```http
-GET    /api/health/               # Status da API
-```
-
----
-
-## 🔐 Autenticação
-
-Todas as rotas (exceto `/health/`) exigem token Firebase:
+**Exemplo com cURL:**
 
 ```bash
-curl -X GET http://localhost:8000/api/warehouses/ \
-  -H "Authorization: Bearer SEU_TOKEN_FIREBASE"
+curl http://localhost:8000/api/products/ \
+  -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6..."
 ```
-
----
-
-## 🧪 Desenvolvimento
-
-### Comandos Úteis
-
-```bash
-# Rodar servidor em modo debug
-python manage.py runserver 0.0.0.0:8000
-
-# Shell Django
-python manage.py shell
-
-# Criar novo app
-python manage.py startapp nome_app
-
-# Ver logs Neo4j
-docker logs wms-neo4j -f
-
-# Limpar dados Neo4j
-docker exec -it wms-neo4j cypher-shell -u neo4j -p wms_password_123
-# No cypher: MATCH (n) DETACH DELETE n;
-```
-
-### Exemplo de Query Cypher
-
-```cypher
-// Ver estrutura do warehouse
-MATCH (w:Warehouse)-[r*]->(b:Bin)
-RETURN w, r, b
-LIMIT 50
-
-// Produtos e localizações
-MATCH (p:Product)-[:STORED_IN]->(b:Bin)
-RETURN p.sku, p.name, b.code, p.quantity
-
-// Contar bins por corredor
-MATCH (a:Aisle)-[:CONTAINS*]->(b:Bin)
-RETURN a.code, count(b) as bins_count
-ORDER BY bins_count DESC
-```
-
----
-
-## 🧬 Modelo de Grafo
-
-### Nodes (Nós)
-
-```python
-Warehouse
-  ├── Zone (receiving, storage, picking, shipping)
-  │    └── Aisle (A, B, C, ...)
-  │         └── Shelf (01, 02, 03, ...)
-  │              └── Bin (A-01-02-A)
-  │
-  └── Product (SKU único)
-
-Order
-  └── OrderItem
-```
-
-### Relationships (Relacionamentos)
-
-```
-Warehouse -[CONTAINS]-> Zone
-Zone -[CONTAINS]-> Aisle
-Aisle -[CONTAINS]-> Shelf
-Shelf -[CONTAINS]-> Bin
-Product -[STORED_IN]-> Bin
-Order -[HAS_ITEM]-> OrderItem
-```
-
----
-
-## 🎓 Conceitos de Algoritmos
-
-### TSP (Traveling Salesman Problem)
-
-- **Objetivo**: Encontrar a rota mais curta visitando todos os bins
-- **Algoritmo**: Greedy approximation (sempre vai ao mais próximo)
-- **Uso**: Otimização de picking de pedidos
-
-### Dijkstra / A\*
-
-- **Objetivo**: Caminho mais curto entre dois pontos
-- **Uso**: Navegação individual entre bins
-
-### Grafo Ponderado
-
-- **Pesos**: Calculados pela distância física entre bins
-- **Lógica**:
-  - Mesma prateleira = peso 0.5
-  - Mesmo corredor = peso 2.0
-  - Corredores diferentes = peso 10.0
-
----
-
-## 📊 Exemplo de Uso
-
-### 1. Criar Warehouse
-
-```bash
-curl -X POST http://localhost:8000/api/warehouses/ \
-  -H "Authorization: Bearer TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "CD São Paulo",
-    "address": "Av. Industrial, 1000",
-    "total_capacity": 10000
-  }'
-```
-
-### 2. Criar Produto
-
-```bash
-curl -X POST http://localhost:8000/api/products/ \
-  -H "Authorization: Bearer TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "sku": "PROD-001",
-    "name": "Notebook Dell",
-    "quantity": 50,
-    "unit": "UN",
-    "location_code": "A-01-02-A"
-  }'
-```
-
-### 3. Criar Pedido com Rota Otimizada
-
-```bash
-curl -X POST http://localhost:8000/api/orders/create/ \
-  -H "Authorization: Bearer TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "order_number": "ORD-001",
-    "warehouse_uid": "WAREHOUSE_UID",
-    "items": [
-      {"sku": "PROD-001", "quantity": 5},
-      {"sku": "PROD-002", "quantity": 3}
-    ]
-  }'
-```
-
-**Resposta:**
-
-```json
-{
-  "success": true,
-  "order_uid": "...",
-  "order_number": "ORD-001",
-  "status": "pending",
-  "items": [...],
-  "suggested_route": {
-    "route": ["A-01-02-A", "B-03-01-B"],
-    "total_distance": 12.5,
-    "steps": [
-      {"from": "A-01-02-A", "to": "B-03-01-B", "distance": 12.5}
-    ],
-    "bins_count": 2
-  }
-}
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Neo4j não conecta
-
-```bash
-# Verificar se está rodando
-docker ps | grep neo4j
-
-# Ver logs
-docker logs wms-neo4j
-
-# Reiniciar
-docker-compose restart neo4j
-```
-
-### Erro de autenticação Firebase
-
-- Verificar se `firebase-service-account.json` está correto
-- Confirmar path no `.env`
-- Testar token no https://jwt.io
-
-### CORS error
-
-- Adicionar origin no `CORS_ALLOWED_ORIGINS`
-- Verificar se `corsheaders` está em `INSTALLED_APPS`
-
----
-
-## 📈 Roadmap
-
-- [x] Setup base Django + Neo4j
-- [x] Autenticação Firebase
-- [x] CRUD Warehouse/Products
-- [x] Sistema de Orders
-- [x] Dashboard analytics
-
----
-
-**Desenvolvido com Django, Neo4j e algoritmos de grafos**
+-----
+<div align="center">
+  Desenvolvido por João Flavio - Unisal 2025
+</div>
